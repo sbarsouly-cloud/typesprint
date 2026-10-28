@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>TypeSprint — Typspel</title>
+<style>
+:root{--bg:#10131c;--panel:#191e2b;--panel2:#202738;--text:#f5f7ff;--muted:#9ba7bf;--accent:#9af06b;--wrong:#ff707d;--line:#30394d}
+*{box-sizing:border-box}body{margin:0;min-height:100vh;background:radial-gradient(ellipse at top,#202943 0%,var(--bg) 58%);color:var(--text);font-family:Inter,ui-sans-serif,system-ui,-apple-system,Segoe UI,sans-serif;display:flex;justify-content:center;padding:32px 16px}
+main{width:min(900px,100%)}.brand{display:flex;align-items:center;gap:10px;font-weight:850;letter-spacing:-.04em;font-size:1.2rem}.logo{display:grid;place-items:center;width:38px;height:38px;border-radius:12px;background:var(--accent);color:#152015;font-size:1.3rem}
+header{display:flex;justify-content:space-between;align-items:center;margin-bottom:42px}.tag{color:var(--accent);font-size:.8rem;font-weight:750;letter-spacing:.12em;text-transform:uppercase}
+h1{font-size:clamp(2.3rem,7vw,4.4rem);letter-spacing:-.065em;line-height:.98;margin:12px 0} .intro{color:var(--muted);font-size:1.03rem;line-height:1.6;margin:18px 0 28px}
+.panel{background:rgba(25,30,43,.92);border:1px solid var(--line);border-radius:24px;padding:clamp(18px,4vw,32px);box-shadow:0 22px 80px #0003}
+.toprow{display:flex;gap:10px;justify-content:space-between;align-items:center;flex-wrap:wrap;margin-bottom:24px}.modes{display:flex;gap:7px;flex-wrap:wrap}
+button,select{font:inherit;border:1px solid var(--line);border-radius:11px;background:var(--panel2);color:var(--text);padding:10px 14px;cursor:pointer}
+button:hover{border-color:#7786a3}button.active{background:var(--accent);border-color:var(--accent);color:#152015;font-weight:800}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:22px}.stat{background:#111622;border:1px solid #293247;border-radius:15px;padding:14px}.stat small{display:block;color:var(--muted);font-size:.78rem;margin-bottom:7px}.stat strong{font-size:clamp(1.35rem,4vw,2rem);letter-spacing:-.04em}
+.words{font-size:clamp(1.25rem,3.4vw,1.7rem);line-height:1.9;letter-spacing:.015em;min-height:180px;max-height:240px;overflow:hidden;padding:12px 14px;background:#111622;border:1px solid #293247;border-radius:16px;margin-bottom:14px;user-select:none}
+.words span{border-radius:4px}.words .correct{color:var(--accent)}.words .incorrect{color:var(--wrong);background:#ff707d18;text-decoration:underline}.words .current{background:#9af06b25;outline:1px solid #9af06b77}
+input[type=text]{width:100%;padding:17px 18px;background:#0f1420;color:var(--text);border:1px solid #46536c;border-radius:14px;font-size:1.05rem;outline:none}input:focus{border-color:var(--accent);box-shadow:0 0 0 3px #9af06b18}input:disabled{opacity:.55}
+.actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px}.primary{background:var(--accent);border-color:var(--accent);color:#152015;font-weight:850}.hint{color:var(--muted);font-size:.85rem;margin-top:14px;line-height:1.5}.result{display:none;margin-top:18px;padding:18px;border-radius:15px;background:#9af06b12;border:1px solid #9af06b55}.result h2{margin:0 0 6px;font-size:1.35rem}.result p{margin:0;color:var(--muted)}footer{text-align:center;color:var(--muted);font-size:.8rem;margin-top:24px}
+@media(max-width:540px){header{margin-bottom:28px}.stats{grid-template-columns:repeat(2,1fr)}.words{min-height:190px}.tag{font-size:.68rem}}
+</style>
+</head>
+<body>
+<main>
+<header><div class="brand"><span class="logo">⌨</span> TypeSprint</div><span class="tag">Train je vingers</span></header>
+<section>
+<div class="tag">Klaar voor de start?</div>
+<h1>Typ sneller.<br><span style="color:var(--accent)">Denk scherper.</span></h1>
+<p class="intro">Typ de woorden zo snel en nauwkeurig mogelijk voordat de tijd op is. Elke seconde telt!</p>
+</section>
+<section class="panel">
+<div class="toprow">
+<div class="modes" aria-label="Rondetijd">
+<button class="mode active" data-time="30">30 sec</button>
+<button class="mode" data-time="60">60 sec</button>
+<button class="mode" data-time="120">120 sec</button>
+</div>
+<button id="restart" title="Nieuw spel">↻ Opnieuw</button>
+</div>
+<div class="stats">
+<div class="stat"><small>⏱ Tijd</small><strong id="time">30s</strong></div>
+<div class="stat"><small>⚡ WPM</small><strong id="wpm">0</strong></div>
+<div class="stat"><small>✓ Nauwkeurig</small><strong id="accuracy">100%</strong></div>
+<div class="stat"><small>★ Goed getypt</small><strong id="typed">0</strong></div>
+</div>
+<div id="words" class="words" aria-label="Te typen tekst"></div>
+<input id="typing" type="text" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="Klik hier en begin met typen…" aria-label="Typ de woorden hier">
+<div class="actions"><button class="primary" id="start">Start spel</button><button id="focus">Focus op invoerveld</button></div>
+<p class="hint">Tip: je ronde begint zodra je begint te typen. Spaties bevestigen een woord. Je voortgang wordt live bijgewerkt.</p>
+<div class="result" id="result"><h2>Ronde klaar! 🎉</h2><p id="summary"></p></div>
+</section>
+<footer>TypeSprint · Een klein spel om je typevaardigheid te oefenen</footer>
+</main>
+<script>
+const bank = ("appel banaan computer toetsenbord snelheid oefenen plezier school vrienden muziek regenachtig avontuur ruimte planeet sterren voetbal basketbal fietsen vakantie strand chocolade pannenkoeken ochtend avond rustig vrolijk slim krachtig creatief nieuwsgierig geweldig vandaag morgen gisteren water koffie thee brood kaas vogel konijn schildpad vlinder spiegel venster regenboog wolken bergen rivier bos bloemen zomer winter herfst lente licht donker lachen dromen ontdekken bouwen tekenen lezen schrijven leren winnen proberen aandacht precies ritme handen vingers scherm spelletje uitdaging resultaat oefenen maakt vooruitgang").split(" ");
+const $ = id => document.getElementById(id);
+let duration=30, remaining=30, started=false, finished=false, timer=null, target=[], wordIndex=0, typedChars=0, correctChars=0, mistakes=0;
+function makeWords(){target=[];for(let i=0;i<90;i++)target.push(bank[Math.floor(Math.random()*bank.length)]);wordIndex=0;}
+function renderWords(){
+ const el=$("words");el.innerHTML="";
+ target.forEach((w,i)=>{const span=document.createElement("span");span.textContent=w+" ";if(i<wordIndex)span.className="correct";else if(i===wordIndex)span.className="current";el.appendChild(span);});
+ const current=el.children[wordIndex];if(current)current.scrollIntoView({block:"nearest",inline:"nearest"});
+}
+function reset(){clearInterval(timer);timer=null;started=false;finished=false;remaining=duration;typedChars=0;correctChars=0;mistakes=0;wordIndex=0;$("typing").value="";$("typing").disabled=false;$("typing").placeholder="Klik hier en begin met typen…";$("result").style.display="none";$("start").textContent="Start spel";makeWords();renderWords();updateStats();$("typing").focus();}
+function updateStats(){const elapsed=duration-remaining;const wpm=elapsed>0?Math.round((correctChars/5)/(elapsed/60)):0;const accuracy=typedChars?Math.round(correctChars/typedChars*100):100;$("time").textContent=remaining+"s";$("wpm").textContent=wpm;$("accuracy").textContent=accuracy+"%";$("typed").textContent=wordIndex;}
+function begin(){if(started||finished)return;started=true;$("start").textContent="Bezig…";timer=setInterval(()=>{remaining--;updateStats();if(remaining<=0)endGame();},1000);}
+function endGame(){clearInterval(timer);timer=null;finished=true;started=false;$("typing").disabled=true;$("start").textContent="Ronde afgelopen";updateStats();$("result").style.display="block";const elapsed=Math.max(1,duration-remaining);const wpm=Math.round((correctChars/5)/(elapsed/60));const acc=typedChars?Math.round(correctChars/typedChars*100):100;$("summary").textContent=`Je haalde ${wpm} WPM met ${acc}% nauwkeurigheid en ${wordIndex} goed getypte woorden. Probeer nog een ronde!`;}
+$("typing").addEventListener("input",e=>{if(finished)return;begin();const val=e.target.value;if(val.endsWith(" ")){const entered=val.trim();const expected=target[wordIndex];typedChars+=entered.length;for(let i=0;i<Math.min(entered.length,expected.length);i++){if(entered[i]===expected[i])correctChars++;else mistakes++;}if(entered===expected){wordIndex++;}else{ // still move forward; count only correctly matched characters above
+ wordIndex++;
+ }e.target.value="";if(wordIndex>=target.length)target.push(...Array.from({length:40},()=>bank[Math.floor(Math.random()*bank.length)]));renderWords();}updateStats();});
+document.querySelectorAll(".mode").forEach(btn=>btn.addEventListener("click",()=>{duration=Number(btn.dataset.time);document.querySelectorAll(".mode").forEach(b=>b.classList.toggle("active",b===btn));reset();}));
+$("restart").addEventListener("click",reset);$("start").addEventListener("click",()=>{if(finished)reset();else{$("typing").focus();}});$("focus").addEventListener("click",()=>$("typing").focus());
+reset();
+</script>
+</body>
+</html>
